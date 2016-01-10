@@ -2,6 +2,7 @@
 VozcoCMS-ear/target/*
 VozcoCMS-ejb/target/*
 VozcoCMS-web/target/*
+VozcoCMS-web/overlays/*
 
 # Compiled source #
 ###################
