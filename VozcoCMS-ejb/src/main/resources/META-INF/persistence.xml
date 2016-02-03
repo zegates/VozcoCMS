@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
+             version="2.0">
+    <persistence-unit name="vozcopersist"  transaction-type="JTA">
+        <jta-data-source>java:/VozcoCMS</jta-data-source>
+        <class>com.zegates.vozco.entities.Customer</class>
+        <!--<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>-->
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
+            <property name="hibernate.connection.datasource" value="java:/VozcoCMS"/>
+            <!--<property name="hbm2ddl.auto" value="create-drop" />-->
+            <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
+        </properties>
+        <!--<jta-data-source>java:/VozcoCMS</jta-data-source>-->
+        <!--<mapping-file>ormap.xml</mapping-file>-->
+        <!--<jar-file>MyApp.jar</jar-file>-->
+        <!--<class>org.zegates.vozco.entities.Customer</class>-->
+        <!--<class>org.acme.Person</class>-->
+        <!--<class>org.acme.Address</class>-->
+        <!--<shared-cache-mode>ENABLE_SELECTOVE</shared-cache-mode>-->
+        <!--<validation-mode>CALLBACK</validation-mode>-->
+        <!--<properties>-->
+            <!--<property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>-->
+            <!--<property name="hibernate.hbm2ddl.auto" value="create-drop"/>-->
+        <!--</properties>-->
+    </persistence-unit>
+</persistence>

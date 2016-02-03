@@ -110,6 +110,12 @@
          <!--<version>9.3.7.RC0</version>-->
       <!--&lt;!&ndash;</dependency>&ndash;&gt;-->
       <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-jndi</artifactId>
+         <version>9.3.7.v20160115</version>
+      </dependency>
+
+      <dependency>
          <groupId>org.cometd.java</groupId>
          <artifactId>cometd-java-websocket-common-server</artifactId>
          <version>3.0.8</version>
@@ -192,10 +198,6 @@
          <artifactId>cometd-jquery</artifactId>
          <version>3.0.5</version>
       </dependency>
-
-
-
-
       <!--<dependency>-->
          <!--<groupId>org.cometd.java</groupId>-->
          <!--<artifactId>cometd-java</artifactId>-->
@@ -237,28 +239,40 @@
          <artifactId>cdi-api</artifactId>
          <scope>provided</scope>
       </dependency>
+      <!--<dependency>-->
+         <!--<groupId>dom4j</groupId>-->
+         <!--<artifactId>dom4j</artifactId>-->
+         <!--<version>1.6.1</version>-->
+         <!--<scope>provided</scope>-->
+      <!--</dependency>-->
+
+      <!--<dependency>-->
+         <!--<groupId>org.hibernate</groupId>-->
+         <!--<artifactId>hibernate-annotations</artifactId>-->
+         <!--<version>3.5.6-Final</version>-->
+      <!--</dependency>-->
 
       <!-- Import the JPA API, we use provided scope as the API is included in JBoss WildFly -->
-      <dependency>
-         <groupId>org.hibernate.javax.persistence</groupId>
-         <artifactId>hibernate-jpa-2.1-api</artifactId>
-         <scope>provided</scope>
-      </dependency>
+      <!--<dependency>-->
+         <!--<groupId>org.hibernate.javax.persistence</groupId>-->
+         <!--<artifactId>hibernate-jpa-2.1-api</artifactId>-->
+         <!--<scope>provided</scope>-->
+      <!--</dependency>-->
 
        <!-- JSR-303 (Bean Validation) Implementation -->
        <!-- Provides portable constraints such as @Email -->
        <!-- Hibernate Validator is shipped in JBoss WildFly -->
-       <dependency>
-           <groupId>org.hibernate</groupId>
-           <artifactId>hibernate-validator</artifactId>
-           <scope>provided</scope>
-           <exclusions>
-               <exclusion>
-                   <groupId>org.slf4j</groupId>
-                   <artifactId>slf4j-api</artifactId>
-               </exclusion>
-           </exclusions>
-       </dependency>
+       <!--<dependency>-->
+           <!--<groupId>org.hibernate</groupId>-->
+           <!--<artifactId>hibernate-validator</artifactId>-->
+           <!--<scope>provided</scope>-->
+           <!--<exclusions>-->
+               <!--<exclusion>-->
+                   <!--<groupId>org.slf4j</groupId>-->
+                   <!--<artifactId>slf4j-api</artifactId>-->
+               <!--</exclusion>-->
+           <!--</exclusions>-->
+       <!--</dependency>-->
 
    </dependencies>
 

@@ -1,5 +1,8 @@
 package com.zegates.vozco.view;
 
+import com.zegates.vozco.beans.remote.CustomerBeanRemote;
+
+import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -13,6 +16,10 @@ import java.io.PrintWriter;
  */
 @WebServlet(name = "Welcome", urlPatterns = "/Welcome")
 public class Welcome extends HttpServlet {
+
+    @EJB//(beanName = "CustomerBeanEJB")
+    private CustomerBeanRemote customerBean;
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doGet(request,response);
     }
@@ -27,7 +34,7 @@ public class Welcome extends HttpServlet {
             out.println("<title>Servlet Test</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet Test at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet Test at " + request.getContextPath() + " "+customerBean.createCustomer(null)+ "</h1>");
             out.println("</body>");
             out.println("</html>");
 //            org.cometd.annotation.AnnotationCometDServlet

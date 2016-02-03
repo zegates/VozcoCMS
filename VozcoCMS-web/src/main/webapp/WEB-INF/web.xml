@@ -19,7 +19,7 @@
     </session-config>
     <servlet>
         <servlet-name>cometd</servlet-name>
-        <servlet-class>org.cometd.annotation.AnnotationCometDServlet</servlet-class>
+        <servlet-class>com.zegates.vozco.view.CometDServlet</servlet-class>
         <init-param>
             <param-name>services</param-name>
             <param-value>com.zegates.vozco.view.CometService</param-value>
@@ -34,4 +34,9 @@
         </init-param>
         <async-supported>true</async-supported>
     </servlet>
+    <resource-ref>
+        <res-ref-name>VozcoCMS</res-ref-name>
+        <res-type>javax.sql.DataSource</res-type>
+        <res-auth>Container</res-auth>
+    </resource-ref>
 </web-app>
