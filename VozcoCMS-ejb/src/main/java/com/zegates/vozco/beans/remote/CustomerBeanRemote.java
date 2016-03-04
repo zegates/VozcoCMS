@@ -12,4 +12,6 @@ public interface CustomerBeanRemote {
 
     public boolean createCustomer(Customer customer);
 
+    public boolean updateCustomer(Customer customer);
+
 }

@@ -17,10 +17,14 @@ public class Configurations {
 
     public enum DBOperations{
         CREATED,
-        FAIL
+        FAIL,
+        UPDATED
     }
 
-
+    public enum AuthenticateStatus{
+        SUCCESS,
+        FAIL
+    }
 
 
 

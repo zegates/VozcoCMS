@@ -36,8 +36,7 @@ public class Welcome extends HttpServlet {
             out.println("<body>");
             out.println("<h1>Servlet Test at " + request.getContextPath() + " "+customerBean.createCustomer(null)+ "</h1>");
             out.println("</body>");
-            out.println("</html>");
-//            org.cometd.annotation.AnnotationCometDServlet
+            out.println("</html>");s
 
         }
     }

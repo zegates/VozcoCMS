@@ -57,8 +57,12 @@ public class CometService {
             System.out.println(customerBean);
 
             String cid = (String) message.getDataAsMap().get("cid");
+            String fname = (String) message.getDataAsMap().get("fname");
+            String lname = (String) message.getDataAsMap().get("lname");
             Customer customer = new Customer();
             customer.setCid(cid);
+            customer.setFname(fname);
+            customer.setLname(lname);
             customerBean.createCustomer(customer);
             map.put("DB_OPERATION", Configurations.DBOperations.CREATED);
         }catch (Exception ex){
@@ -67,5 +71,55 @@ public class CometService {
         channel.publish(map);
     }
 
+    @Listener("/cms/customer/update")
+    public void updateCustomer(ServerSession client, ServerMessage message) {
+        if(customerBean == null){
+            System.out.println("Created Customer Bean");
+            customerBean = (CustomerBeanRemote) bayeux.getContext().getContextAttribute("CustomerBean");
+        }
+        Map<String, Object> map = new HashMap<>();
+        ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/customer/update");
+        try {
+            String cid = (String) message.getDataAsMap().get("cid");
+            String fname = (String) message.getDataAsMap().get("fname");
+            String lname = (String) message.getDataAsMap().get("lname");
+            Customer customer = new Customer();
+            customer.setCid(cid);
+            customer.setFname(fname);
+            customer.setLname(lname);
+            customerBean.updateCustomer(customer);
+            map.put("DB_OPERATION", Configurations.DBOperations.UPDATED);
+        }catch (Exception ex){
+            map.put("DB_OPERATION", Configurations.DBOperations.FAIL);
+        }
+        channel.publish(map);
+    }
+
+    @Listener("/cms/authenticate")
+    public void authenticate(ServerSession client, ServerMessage message) {
+        String username = (String) message.getDataAsMap().get("username");
+        String password = (String) message.getDataAsMap().get("password");
+
+        System.out.println(username);
+        if(username.equals("s")){
+            setAuthenticatedStatus(Configurations.AuthenticateStatus.SUCCESS);
+        }else{
+            setAuthenticatedStatus(Configurations.AuthenticateStatus.FAIL);
+        }
+    }
+
+    public void setAuthenticatedStatus(Configurations.AuthenticateStatus authStatus){
+        Map<String, Object> map = new HashMap<>();
+        ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/authenticate/status");
+        map.put("AUTH_OPERATION", authStatus);
+        channel.publish(map);
+    }
+
+    private CustomerBeanRemote getCustomerBean(){
+        if(customerBean == null){
+            customerBean = (CustomerBeanRemote) bayeux.getContext().getContextAttribute("CustomerBean");
+        }
+        return customerBean;
+    }
 
 }

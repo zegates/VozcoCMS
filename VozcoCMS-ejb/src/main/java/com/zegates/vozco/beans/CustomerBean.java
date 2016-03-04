@@ -36,6 +36,21 @@ public class CustomerBean implements CustomerBeanRemote{
         return true;
     }
 
+    public boolean updateCustomer(Customer customer){
+        try {
+
+            System.out.println("Updating the Customer");
+            em.merge(customer);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }finally {
+//            t.close();
+        }
+        return true;
+    }
+
+
 
 
 
