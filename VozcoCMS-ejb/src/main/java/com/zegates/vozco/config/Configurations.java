@@ -12,7 +12,8 @@ public class Configurations {
         NO_LOG,
         DEBUG,
         INFO,
-        ERROR
+        ERROR,
+        ALL
     }
 
     public enum DBOperations{

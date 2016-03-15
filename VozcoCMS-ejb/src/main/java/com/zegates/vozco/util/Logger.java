@@ -1,6 +1,7 @@
 package com.zegates.vozco.util;
 
 import com.zegates.vozco.config.Configurations;
+import org.omg.CORBA.PRIVATE_MEMBER;
 
 import java.util.logging.Level;
 
@@ -10,20 +11,21 @@ import java.util.logging.Level;
 public class Logger {
 
     private static java.util.logging.Logger logger;
+    private static Level LOG_LEVEL=Level.ALL;
 
     static {
         logger = java.util.logging.Logger.getGlobal();
     }
 
-    public static void log(String log,Level level){
-        switch (Configurations.LOG_MOD){
-
-//            case Configurations.LogMod.DEBUG :
-//                logger.log(level, log);
-//                break;
-
+    public static void log(Level level, String log){
+        if(LOG_LEVEL.equals(Level.ALL)) {
+            logger.log(level, log);
+        }else if(LOG_LEVEL.equals(level)){
+            logger.log(level, log);
         }
-        logger.log(level, log);
+    }
+    public static void log(String log){
+        log(Level.INFO, log);
     }
 
 }

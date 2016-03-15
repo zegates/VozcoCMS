@@ -18,17 +18,18 @@ import org.cometd.server.authorizer.GrantAuthorizer;
 import org.cometd.server.filter.DataFilterMessageListener;
 import org.cometd.server.filter.NoMarkupFilter;
 
-import javax.ejb.EJB;
 import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Created by sandaruwan on 1/9/16.
  */
 @Service("CMSService")
 public class CometService {
-
 
     @Inject
     private BayeuxServer bayeux;
@@ -37,6 +38,9 @@ public class CometService {
     private ServerSession serverSession;
 
     private CustomerBeanRemote customerBean = null;
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+
 
     @Configure({"/cms/**/**"})
     protected void configureCMSConfig(ConfigurableServerChannel channel) {
@@ -48,22 +52,23 @@ public class CometService {
 
     @Listener("/cms/customer/create")
     public void createCustomer(ServerSession client, ServerMessage message) {
-        if(customerBean == null){
-            customerBean = (CustomerBeanRemote) bayeux.getContext().getContextAttribute("CustomerBean");
-        }
+
         Map<String, Object> map = new HashMap<String, Object>();
         ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/customer/create");
         try {
-            System.out.println(customerBean);
 
             String cid = (String) message.getDataAsMap().get("cid");
             String fname = (String) message.getDataAsMap().get("fname");
             String lname = (String) message.getDataAsMap().get("lname");
+            String address = (String) message.getDataAsMap().get("address");
+            String password = (String) message.getDataAsMap().get("password");
             Customer customer = new Customer();
             customer.setCid(cid);
             customer.setFname(fname);
             customer.setLname(lname);
-            customerBean.createCustomer(customer);
+            customer.setAddress(address);
+            customer.setPassword(password);
+            getCustomerBean().createCustomer(customer);
             map.put("DB_OPERATION", Configurations.DBOperations.CREATED);
         }catch (Exception ex){
             map.put("DB_OPERATION", Configurations.DBOperations.FAIL);
@@ -73,21 +78,22 @@ public class CometService {
 
     @Listener("/cms/customer/update")
     public void updateCustomer(ServerSession client, ServerMessage message) {
-        if(customerBean == null){
-            System.out.println("Created Customer Bean");
-            customerBean = (CustomerBeanRemote) bayeux.getContext().getContextAttribute("CustomerBean");
-        }
+
         Map<String, Object> map = new HashMap<>();
         ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/customer/update");
         try {
             String cid = (String) message.getDataAsMap().get("cid");
             String fname = (String) message.getDataAsMap().get("fname");
             String lname = (String) message.getDataAsMap().get("lname");
+            String address = (String) message.getDataAsMap().get("address");
+
             Customer customer = new Customer();
             customer.setCid(cid);
             customer.setFname(fname);
             customer.setLname(lname);
-            customerBean.updateCustomer(customer);
+            customer.setAddress(address);
+
+            getCustomerBean().updateCustomer(customer);
             map.put("DB_OPERATION", Configurations.DBOperations.UPDATED);
         }catch (Exception ex){
             map.put("DB_OPERATION", Configurations.DBOperations.FAIL);
@@ -99,20 +105,31 @@ public class CometService {
     public void authenticate(ServerSession client, ServerMessage message) {
         String username = (String) message.getDataAsMap().get("username");
         String password = (String) message.getDataAsMap().get("password");
+        Customer customer = new Customer();
+        customer.setPassword(password);
+        customer.setUsername(username);
+        customer = getCustomerBean().authenticate(customer);
 
-        System.out.println(username);
-        if(username.equals("s")){
-            setAuthenticatedStatus(Configurations.AuthenticateStatus.SUCCESS);
-        }else{
-            setAuthenticatedStatus(Configurations.AuthenticateStatus.FAIL);
+        ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/authenticate/status");
+        Map<String, Object> map = new HashMap<>();
+
+        try{
+            if(customer != null){
+                customer.setPassword("");
+                String jsonCustomer = objectMapper.writeValueAsString(customer);
+                map.put("customer", jsonCustomer);
+                setAuthenticatedStatus(map, Configurations.AuthenticateStatus.SUCCESS);
+            }else{
+                setAuthenticatedStatus(map, Configurations.AuthenticateStatus.FAIL);
+            }
+        }catch (Exception e){
+            setAuthenticatedStatus(map, Configurations.AuthenticateStatus.FAIL);
         }
+        channel.publish(map);
     }
 
-    public void setAuthenticatedStatus(Configurations.AuthenticateStatus authStatus){
-        Map<String, Object> map = new HashMap<>();
-        ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/authenticate/status");
+    public void setAuthenticatedStatus(Map<String, Object> map, Configurations.AuthenticateStatus authStatus){
         map.put("AUTH_OPERATION", authStatus);
-        channel.publish(map);
     }
 
     private CustomerBeanRemote getCustomerBean(){
@@ -121,5 +138,4 @@ public class CometService {
         }
         return customerBean;
     }
-
 }
