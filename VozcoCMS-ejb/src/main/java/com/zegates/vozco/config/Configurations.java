@@ -19,7 +19,8 @@ public class Configurations {
     public enum DBOperations{
         CREATED,
         FAIL,
-        UPDATED
+        UPDATED,
+        FOUND
     }
 
     public enum AuthenticateStatus{

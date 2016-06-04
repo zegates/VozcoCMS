@@ -1,31 +1,46 @@
 package com.zegates.vozco.entities;
 
 import javassist.compiler.ast.StringL;
+import org.hibernate.annotations.NamedQueries;
 import org.hibernate.annotations.NamedQuery;
 import org.hibernate.annotations.Table;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import java.util.List;
 
 /**
  * Created by sandaruwan on 1/12/16.
  */
 @Entity
-@NamedQuery(
-        name="authenticateCustomer",
-        query="SELECT c FROM Customer c WHERE c.username=:uname AND c.password=:pw"
-)
+@NamedQueries({
+        @NamedQuery(
+                name = "authenticateCustomer",
+                query = "SELECT c FROM Customer c WHERE c.username=:uname AND c.password=:pw"
+        ),
+        @NamedQuery(
+                name = "findCustomerFnameLname",
+                query = "SELECT c FROM Customer c WHERE c.fname LIKE :fname OR c.lname LIKE :lname"
+        ),
+        @NamedQuery(
+                name = "findCustomerFname",
+                query = "SELECT c FROM Customer c WHERE c.fname LIKE :fname"
+        )
+})
 public class Customer {
 
     @Id
-    private String cid;
-
+    private int cid;
     private String fname;
     private String lname;
     private String address;
     private String telephone;
     private String password;
     private String username;
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    private List<CustomerOrder> customerOrders;
 
     public String getUsername() {
         return username;
@@ -73,11 +88,11 @@ public class Customer {
         this.telephone = telephone;
     }
 
-    public String getCid() {
+    public int getCid() {
         return cid;
     }
 
-    public void setCid(String cid) {
+    public void setCid(int cid) {
         this.cid = cid;
     }
 }

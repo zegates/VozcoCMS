@@ -17,6 +17,12 @@ public interface CustomerBeanRemote {
 
     public Customer authenticate(Customer customer);
 
+    public List<Customer> findCustomers();
+
+    public List<Customer> findCustomers(int maxResults, int firstResult);
+
     public List<Customer> findCustomers(boolean all, int maxResults, int firstResult) ;
+
+    public List<Customer> findSearchedCustomers(Customer customer);
 
 }

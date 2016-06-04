@@ -20,6 +20,7 @@ import org.cometd.server.filter.NoMarkupFilter;
 
 import javax.inject.Inject;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -52,12 +53,10 @@ public class CometService {
 
     @Listener("/cms/customer/create")
     public void createCustomer(ServerSession client, ServerMessage message) {
-
         Map<String, Object> map = new HashMap<String, Object>();
         ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/customer/create");
         try {
-
-            String cid = (String) message.getDataAsMap().get("cid");
+            int cid = (int) message.getDataAsMap().get("cid");
             String fname = (String) message.getDataAsMap().get("fname");
             String lname = (String) message.getDataAsMap().get("lname");
             String address = (String) message.getDataAsMap().get("address");
@@ -82,7 +81,7 @@ public class CometService {
         Map<String, Object> map = new HashMap<>();
         ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/customer/update");
         try {
-            String cid = (String) message.getDataAsMap().get("cid");
+            int cid = (int) message.getDataAsMap().get("cid");
             String fname = (String) message.getDataAsMap().get("fname");
             String lname = (String) message.getDataAsMap().get("lname");
             String address = (String) message.getDataAsMap().get("address");
@@ -117,6 +116,56 @@ public class CometService {
             if(customer != null){
                 customer.setPassword("");
                 String jsonCustomer = objectMapper.writeValueAsString(customer);
+                map.put("customer", jsonCustomer);
+                setAuthenticatedStatus(map, Configurations.AuthenticateStatus.SUCCESS);
+            }else{
+                setAuthenticatedStatus(map, Configurations.AuthenticateStatus.FAIL);
+            }
+        }catch (Exception e){
+            setAuthenticatedStatus(map, Configurations.AuthenticateStatus.FAIL);
+        }
+        channel.publish(map);
+    }
+
+    @Listener("/cms/customer/find")
+    public void findCustomer(ServerSession client, ServerMessage message) {
+        String fname = (String) message.getDataAsMap().get("fname");
+        String lname = (String) message.getDataAsMap().get("lname");
+        Customer customer = new Customer();
+        customer.setFname(fname);
+        customer.setLname(lname);
+        List<Customer> customers= getCustomerBean().findSearchedCustomers(customer);
+
+        ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/customer/find/result");
+        Map<String, Object> map = new HashMap<>();
+        try{
+            if(customers != null){
+                String jsonCustomers = objectMapper.writeValueAsString(customers);
+                map.put("customers", jsonCustomers);
+                map.put("DB_OPERATION", Configurations.DBOperations.FOUND);
+            }else {
+                map.put("customers", "{}");
+                map.put("DB_OPERATION", Configurations.DBOperations.FOUND);
+            }
+        }catch (Exception ex){
+            map.put("DB_OPERATION", Configurations.DBOperations.FAIL);
+        }
+        channel.publish(map);
+    }
+
+
+    @Listener("/cms/customers")
+    public void customers(ServerSession client, ServerMessage message) {
+
+        List<Customer> customers = getCustomerBean().findCustomers();
+
+        ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/authenticate/status");
+        Map<String, Object> map = new HashMap<>();
+
+        try{
+            if(customers != null){
+
+                String jsonCustomer = objectMapper.writeValueAsString(customers);
                 map.put("customer", jsonCustomer);
                 setAuthenticatedStatus(map, Configurations.AuthenticateStatus.SUCCESS);
             }else{

@@ -6,6 +6,7 @@ import com.zegates.vozco.util.Logger;
 import org.hibernate.annotations.NamedQuery;
 import sun.rmi.runtime.Log;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -29,6 +30,10 @@ public class CustomerBean implements CustomerBeanRemote{
 
     }
 
+    @PostConstruct
+    void init (){
+
+    }
 
     public boolean createCustomer(Customer customer){
         try {
@@ -69,11 +74,11 @@ public class CustomerBean implements CustomerBeanRemote{
     }
 
 
-    public List<Customer> findOrdersEntities() {
+    public List<Customer> findCustomers() {
         return findCustomers(true, -1, -1);
     }
 
-    public List<Customer> findOrdersEntities(int maxResults, int firstResult) {
+    public List<Customer> findCustomers(int maxResults, int firstResult) {
         return findCustomers(false, maxResults, firstResult);
     }
 
@@ -91,6 +96,23 @@ public class CustomerBean implements CustomerBeanRemote{
         } finally {
             em.close();
         }
+    }
+
+    public List<Customer> findSearchedCustomers(Customer customer){
+        try {
+            Logger.log(Level.INFO, "Customer Searching...");
+//            List<Customer> results = (List<Customer>) em.createNamedQuery("findCustomerFnameLname")
+//                    .setParameter("fname", customer.getFname())
+////                    .setParameter("lname", customer.getLname())
+//                    .getResultList();
+            List<Customer> results = (List<Customer>) em.createNamedQuery("findCustomerFname")
+                    .setParameter("fname", customer.getFname()+"%")
+                    .getResultList();
+           return results;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 
 

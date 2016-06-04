@@ -6,6 +6,15 @@
     <persistence-unit name="vozcopersist"  transaction-type="JTA">
         <jta-data-source>java:/VozcoCMS</jta-data-source>
         <class>com.zegates.vozco.entities.Customer</class>
+        <class>com.zegates.vozco.entities.LogUser</class>
+        <class>com.zegates.vozco.entities.LogSession</class>
+        <class>com.zegates.vozco.entities.Metric</class>
+        <class>com.zegates.vozco.entities.Supplier</class>
+        <class>com.zegates.vozco.entities.FoodItem</class>
+        <class>com.zegates.vozco.entities.StockDetail</class>
+        <class>com.zegates.vozco.entities.StockOrder</class>
+        <class>com.zegates.vozco.entities.OrderDetail</class>
+        <class>com.zegates.vozco.entities.CustomerOrder</class>
         <!--<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>-->
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />

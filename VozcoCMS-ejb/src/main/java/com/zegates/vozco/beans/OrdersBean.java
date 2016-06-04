@@ -6,7 +6,7 @@ import javax.ejb.Stateful;
  * Created by sandaruwan on 3/15/16.
  */
 @Stateful(name = "OrdersBeanEJB")
-public class OrdersBeanBean {
-    public OrdersBeanBean() {
+public class OrdersBean {
+    public OrdersBean() {
     }
 }

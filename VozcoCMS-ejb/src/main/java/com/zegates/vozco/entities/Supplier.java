@@ -1,9 +1,6 @@
 package com.zegates.vozco.entities;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.sql.Date;
 import java.sql.Time;
 import java.util.List;
@@ -11,6 +8,7 @@ import java.util.List;
 /**
  * Created by sandaruwan on 3/15/16.
  */
+@Entity
 public class Supplier {
 
     public List<StockOrder> getStockOrders() {

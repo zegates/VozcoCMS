@@ -8,6 +8,7 @@ import java.util.List;
 /**
  * Created by sandaruwan on 3/15/16.
  */
+@Entity
 public class StockOrder {
 
     public List<StockDetail> getSupplyOrderDetails() {
@@ -18,7 +19,7 @@ public class StockOrder {
         this.supplyOrderDetails = supplyOrderDetails;
     }
 
-    @OneToMany(mappedBy = "supplyOrder", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "stockOrder", cascade = CascadeType.ALL)
     private List<StockDetail> supplyOrderDetails;
     private static final long serialVersionUID = 1L;
     @Id
