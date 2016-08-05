@@ -2,7 +2,9 @@ package com.zegates.vozco.beans;
 
 import com.zegates.vozco.beans.remote.FoodItemBeanRemote;
 import com.zegates.vozco.entities.Customer;
+import com.zegates.vozco.entities.FoodCategory;
 import com.zegates.vozco.entities.FoodItem;
+import com.zegates.vozco.util.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateful;
@@ -11,6 +13,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
+import java.util.logging.Level;
 
 /**
  * Created by sandaruwan on 3/28/16.
@@ -48,4 +51,20 @@ public class FoodItemBean implements FoodItemBeanRemote{
             em.close();
         }
     }
+
+
+    @Override
+    public List<FoodItem> findFoodItemsForCategory(FoodCategory foodCategory) {
+        try {
+            Logger.log(Level.INFO, "Food Category Items Searching...");
+            List<FoodItem> results = (List<FoodItem>) em.createNamedQuery("findFoodItemForCategory")
+                    .setParameter("fcID", foodCategory)
+                    .getResultList();
+            return results;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
 }

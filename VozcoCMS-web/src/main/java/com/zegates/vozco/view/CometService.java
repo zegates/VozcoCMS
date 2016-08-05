@@ -1,10 +1,19 @@
 package com.zegates.vozco.view;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zegates.vozco.beans.remote.CustomerBeanRemote;
+import com.zegates.vozco.beans.remote.FoodCategoryBeanRemote;
+import com.zegates.vozco.beans.remote.FoodItemBeanRemote;
 import com.zegates.vozco.config.Configurations;
 import com.zegates.vozco.controller.CustomerController;
 import com.zegates.vozco.entities.Customer;
+import com.zegates.vozco.entities.FoodCategory;
+import com.zegates.vozco.entities.FoodItem;
+import com.zegates.vozco.entities.StockDetail;
 import com.zegates.vozco.factory.ControllerFactory;
+import com.zegates.vozco.jsonmap.FoodItemJson;
+import com.zegates.vozco.util.Logger;
+import org.codehaus.jackson.node.ArrayNode;
 import org.cometd.annotation.Configure;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
@@ -19,12 +28,14 @@ import org.cometd.server.filter.DataFilterMessageListener;
 import org.cometd.server.filter.NoMarkupFilter;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
+import java.util.logging.Level;
+
+//import org.codehaus.jackson.JsonGenerationException;
+//import org.codehaus.jackson.map.JsonMappingException;
 
 /**
  * Created by sandaruwan on 1/9/16.
@@ -39,6 +50,8 @@ public class CometService {
     private ServerSession serverSession;
 
     private CustomerBeanRemote customerBean = null;
+    private FoodItemBeanRemote foodItemBean = null;
+    private FoodCategoryBeanRemote foodCategoryBean = null;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -69,7 +82,7 @@ public class CometService {
             customer.setPassword(password);
             getCustomerBean().createCustomer(customer);
             map.put("DB_OPERATION", Configurations.DBOperations.CREATED);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             map.put("DB_OPERATION", Configurations.DBOperations.FAIL);
         }
         channel.publish(map);
@@ -94,7 +107,7 @@ public class CometService {
 
             getCustomerBean().updateCustomer(customer);
             map.put("DB_OPERATION", Configurations.DBOperations.UPDATED);
-        }catch (Exception ex){
+        } catch (Exception ex) {
             map.put("DB_OPERATION", Configurations.DBOperations.FAIL);
         }
         channel.publish(map);
@@ -112,16 +125,16 @@ public class CometService {
         ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/authenticate/status");
         Map<String, Object> map = new HashMap<>();
 
-        try{
-            if(customer != null){
+        try {
+            if (customer != null) {
                 customer.setPassword("");
                 String jsonCustomer = objectMapper.writeValueAsString(customer);
                 map.put("customer", jsonCustomer);
                 setAuthenticatedStatus(map, Configurations.AuthenticateStatus.SUCCESS);
-            }else{
+            } else {
                 setAuthenticatedStatus(map, Configurations.AuthenticateStatus.FAIL);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             setAuthenticatedStatus(map, Configurations.AuthenticateStatus.FAIL);
         }
         channel.publish(map);
@@ -134,20 +147,20 @@ public class CometService {
         Customer customer = new Customer();
         customer.setFname(fname);
         customer.setLname(lname);
-        List<Customer> customers= getCustomerBean().findSearchedCustomers(customer);
+        List<Customer> customers = getCustomerBean().findSearchedCustomers(customer);
 
         ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/customer/find/result");
         Map<String, Object> map = new HashMap<>();
-        try{
-            if(customers != null){
+        try {
+            if (customers != null) {
                 String jsonCustomers = objectMapper.writeValueAsString(customers);
                 map.put("customers", jsonCustomers);
                 map.put("DB_OPERATION", Configurations.DBOperations.FOUND);
-            }else {
+            } else {
                 map.put("customers", "{}");
                 map.put("DB_OPERATION", Configurations.DBOperations.FOUND);
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             map.put("DB_OPERATION", Configurations.DBOperations.FAIL);
         }
         channel.publish(map);
@@ -156,35 +169,154 @@ public class CometService {
 
     @Listener("/cms/customers")
     public void customers(ServerSession client, ServerMessage message) {
+        List<FoodItem> foodItems = getFoodItemBean().findFoodItem();
+
+        ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/authenticate/status");
+        Map<String, Object> map = new HashMap<>();
+
+        try {
+            if (foodItems != null) {
+                String jsonFoodItems = objectMapper.writeValueAsString(foodItems);
+                map.put("fooditems", jsonFoodItems);
+                setAuthenticatedStatus(map, Configurations.AuthenticateStatus.SUCCESS);
+            } else {
+                setAuthenticatedStatus(map, Configurations.AuthenticateStatus.FAIL);
+            }
+        } catch (Exception e) {
+            setAuthenticatedStatus(map, Configurations.AuthenticateStatus.FAIL);
+        }
+        channel.publish(map);
+    }
+
+    @Listener("/cms/foodcategories")
+    public void foodCategories(ServerSession client, ServerMessage message) {
+        List<FoodCategory> foodCategories = getFoodCategoryBean().findFoodCategory();
+        ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/foodcategories/result");
+        Map<String, Object> map = new HashMap<>();
+        try {
+            if (foodCategories != null) {
+
+                List<FoodCategory> foodCategoriesTemp = new ArrayList<>();
+
+                for (FoodCategory foodCategory : foodCategories) {
+                    foodCategory.setFoodItems(null);
+                    foodCategoriesTemp.add(foodCategory);
+                }
+                String jsonFoodCategories = objectMapper.writeValueAsString(foodCategoriesTemp);
+                map.put("foodCategories", jsonFoodCategories);
+                setDBStatus(map, Configurations.DBOperations.FOUND);
+            } else {
+                setDBStatus(map, Configurations.DBOperations.FAIL);
+            }
+        } catch (Exception e) {
+            Logger.log(Level.SEVERE, e.getMessage());
+            e.printStackTrace();
+            setAuthenticatedStatus(map, Configurations.AuthenticateStatus.FAIL);
+        }
+        channel.publish(map);
+    }
+
+    @Listener("/cms/fooditem/findforcatname")
+    public void findFoodItemForCatName(ServerSession client, ServerMessage message) {
+        Map<String, Object> map = new HashMap<>();
+        ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/fooditem/findforcatname/result");
+
+        try {
+            int fcid = ((Long) message.getDataAsMap().get("foodCatID")).intValue();
+            FoodCategory fc = new FoodCategory();
+            fc.setFcid(fcid);
+            List<FoodItem> foodItemsForCategory = getFoodItemBean().findFoodItemsForCategory(fc);
+//            List<FoodItemJson> itemJsons = new ArrayList<>();
+            List<StockDetail> stockDetailsAppend = new ArrayList<>();
+            if (foodItemsForCategory != null) {
+                for (FoodItem fi : foodItemsForCategory) {
+                    List<StockDetail> stockDetails = fi.getStockDetails();
+                    for (StockDetail sd : stockDetails) {
+                        if (sd.getRemainingQty() > 0) {
+                            sd.getItem().setStockDetails(null);
+                            sd.getItem().getFoodCategory().setFoodItems(null);
+//                            System.out.println("SD::: "+sd.getItem().getStockDetails());
+                            stockDetailsAppend.add(sd);
+//                            FoodItemJson foodItemJson = new FoodItemJson();
+//                            foodItemJson.setFid(sd.getSdid());
+//                            foodItemJson.setFoodCategory(fi.getFoodCategory());
+//                            foodItemJson.setSellingPrice(sd.getSellingPrice());
+//                            foodItemJson.setForeignPrice(sd.getSellingPriceForeign());
+//                            foodItemJson.setItemName(fi.getItemName());
+//                            foodItemJson.setMetric(fi.getMetric());
+//                            foodItemJson.setRemainingQty(sd.getRemainingQty());
+//                            foodItemJson.setDescription(fi.getDescription());
+//                            itemJsons.add(foodItemJson);
+                        }
+                    }
+                }
+
+                String jsonFoodItems = objectMapper.writeValueAsString(stockDetailsAppend);
+
+                map.put("foodCategoryItems", jsonFoodItems);
+                setDBStatus(map, Configurations.DBOperations.FOUND);
+            } else {
+                map.put("foodCategoryItems", "{}");
+                setDBStatus(map, Configurations.DBOperations.FOUND);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            setDBStatus(map, Configurations.DBOperations.FAIL);
+        }
+        channel.publish(map);
+    }
+
+    @Listener("/cms/items")
+    public void items(ServerSession client, ServerMessage message) {
 
         List<Customer> customers = getCustomerBean().findCustomers();
 
         ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/authenticate/status");
         Map<String, Object> map = new HashMap<>();
 
-        try{
-            if(customers != null){
+        try {
+            if (customers != null) {
 
                 String jsonCustomer = objectMapper.writeValueAsString(customers);
                 map.put("customer", jsonCustomer);
                 setAuthenticatedStatus(map, Configurations.AuthenticateStatus.SUCCESS);
-            }else{
+            } else {
                 setAuthenticatedStatus(map, Configurations.AuthenticateStatus.FAIL);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             setAuthenticatedStatus(map, Configurations.AuthenticateStatus.FAIL);
         }
         channel.publish(map);
     }
 
-    public void setAuthenticatedStatus(Map<String, Object> map, Configurations.AuthenticateStatus authStatus){
+
+    public void setAuthenticatedStatus(Map<String, Object> map, Configurations.AuthenticateStatus authStatus) {
         map.put("AUTH_OPERATION", authStatus);
     }
 
-    private CustomerBeanRemote getCustomerBean(){
-        if(customerBean == null){
+    public void setDBStatus(Map<String, Object> map, Configurations.DBOperations dbStatus) {
+        map.put("DB_OPERATION", dbStatus);
+    }
+
+    private CustomerBeanRemote getCustomerBean() {
+        if (customerBean == null) {
             customerBean = (CustomerBeanRemote) bayeux.getContext().getContextAttribute("CustomerBean");
         }
         return customerBean;
     }
+
+    private FoodItemBeanRemote getFoodItemBean() {
+        if (foodItemBean == null) {
+            foodItemBean = (FoodItemBeanRemote) bayeux.getContext().getContextAttribute("FoodItemBean");
+        }
+        return foodItemBean;
+    }
+
+    private FoodCategoryBeanRemote getFoodCategoryBean() {
+        if (foodCategoryBean == null) {
+            foodCategoryBean = (FoodCategoryBeanRemote) bayeux.getContext().getContextAttribute("FoodCategoryBean");
+        }
+        return foodCategoryBean;
+    }
+
 }

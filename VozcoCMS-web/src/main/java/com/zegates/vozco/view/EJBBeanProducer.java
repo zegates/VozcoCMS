@@ -2,6 +2,8 @@ package com.zegates.vozco.view;
 
 import com.zegates.vozco.beans.CustomerBean;
 import com.zegates.vozco.beans.remote.CustomerBeanRemote;
+import com.zegates.vozco.beans.remote.FoodCategoryBeanRemote;
+import com.zegates.vozco.beans.remote.FoodItemBeanRemote;
 import org.cometd.annotation.Session;
 import org.cometd.bayeux.server.BayeuxServer;
 import org.cometd.bayeux.server.ServerSession;
@@ -20,7 +22,10 @@ public class EJBBeanProducer extends HttpServlet {
 
     @EJB
     private  CustomerBeanRemote customerBean;
-
+    @EJB
+    private FoodItemBeanRemote foodItemBean;
+    @EJB
+    private FoodCategoryBeanRemote foodCategoryBean;
 
 //
 //

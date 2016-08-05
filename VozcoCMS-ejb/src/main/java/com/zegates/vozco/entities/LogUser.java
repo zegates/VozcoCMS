@@ -4,6 +4,10 @@
  */
 package com.zegates.vozco.entities;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
@@ -19,19 +23,12 @@ import javax.persistence.OneToMany;
  * @author Sandaruwan
  */
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="uid")
 public class LogUser implements Serializable {
 
-    @OneToMany(mappedBy = "logUser")
+    @OneToMany(mappedBy = "logUser") @JsonIdentityReference(alwaysAsId = true) //@JsonManagedReference
     private List<LogSession> logSessions;
 
-    public List<LogSession> getLogSessions() {
-        return logSessions;
-    }
-
-    public void setLogSessions(List<LogSession> logSessions) {
-        this.logSessions = logSessions;
-    }
-    private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long uid;
@@ -42,9 +39,18 @@ public class LogUser implements Serializable {
     private String pw;
     private Date dateAdded;
     private Time timeAdded;
+    private static final long serialVersionUID = 1L;
+
 
     public Long getUid() {
         return uid;
+    }
+    public List<LogSession> getLogSessions() {
+        return logSessions;
+    }
+
+    public void setLogSessions(List<LogSession> logSessions) {
+        this.logSessions = logSessions;
     }
 
     public void setUid(Long uid) {

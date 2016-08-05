@@ -1,5 +1,6 @@
 package com.zegates.vozco.beans.remote;
 
+import com.zegates.vozco.entities.FoodCategory;
 import com.zegates.vozco.entities.FoodItem;
 
 import javax.ejb.Local;
@@ -12,5 +13,5 @@ import java.util.List;
 public interface FoodItemBeanRemote {
     public List<FoodItem> findFoodItem(boolean all, int maxResults, int firstResult);
     public List<FoodItem> findFoodItem();
-
+    public List<FoodItem> findFoodItemsForCategory(FoodCategory foodCategory);
 }

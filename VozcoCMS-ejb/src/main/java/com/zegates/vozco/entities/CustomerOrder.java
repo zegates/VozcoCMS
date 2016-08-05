@@ -1,6 +1,13 @@
 package com.zegates.vozco.entities;
 
 
+//
+//import org.codehaus.jackson.annotate.JsonBackReference;
+//import org.codehaus.jackson.annotate.JsonManagedReference;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import javax.persistence.*;
 import java.sql.Date;
@@ -11,15 +18,16 @@ import java.util.List;
  * Created by sandaruwan on 3/15/16.
  */
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="oid")
 public class CustomerOrder {
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long oid;
-    @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "customerOrder", cascade = CascadeType.ALL)@JsonIdentityReference(alwaysAsId = true) //@JsonManagedReference
     private List<OrderDetail> orderDetails;
-    @ManyToOne
+    @ManyToOne @JsonIdentityReference(alwaysAsId = true)//@JsonBackReference
     private LogSession logSession;
     private String tpNo;
     private Date dateAdded;
@@ -30,7 +38,7 @@ public class CustomerOrder {
     private double paidAmount;
 
     private boolean paid;
-    @ManyToOne
+    @ManyToOne// @JsonBackReference
     private Customer customer;
 
     public LogSession getLogSession() {

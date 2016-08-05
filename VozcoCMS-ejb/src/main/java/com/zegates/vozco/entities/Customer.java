@@ -1,6 +1,10 @@
 package com.zegates.vozco.entities;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import javassist.compiler.ast.StringL;
+//import org.codehaus.jackson.annotate.JsonManagedReference;
 import org.hibernate.annotations.NamedQueries;
 import org.hibernate.annotations.NamedQuery;
 import org.hibernate.annotations.Table;
@@ -15,6 +19,7 @@ import java.util.List;
  * Created by sandaruwan on 1/12/16.
  */
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="cid")
 @NamedQueries({
         @NamedQuery(
                 name = "authenticateCustomer",
@@ -39,7 +44,7 @@ public class Customer {
     private String telephone;
     private String password;
     private String username;
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL) @JsonIdentityReference(alwaysAsId = true)//@JsonManagedReference
     private List<CustomerOrder> customerOrders;
 
     public String getUsername() {
@@ -94,5 +99,13 @@ public class Customer {
 
     public void setCid(int cid) {
         this.cid = cid;
+    }
+
+    public List<CustomerOrder> getCustomerOrders() {
+        return customerOrders;
+    }
+
+    public void setCustomerOrders(List<CustomerOrder> customerOrders) {
+        this.customerOrders = customerOrders;
     }
 }

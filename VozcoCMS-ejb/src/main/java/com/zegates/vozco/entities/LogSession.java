@@ -4,6 +4,10 @@
  */
 package com.zegates.vozco.entities;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
@@ -20,11 +24,12 @@ import javax.persistence.OneToMany;
  * @author Sandaruwan
  */
 @Entity
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="seid")
 public class LogSession implements Serializable {
 
-    @OneToMany(mappedBy = "logSession")
+    @OneToMany(mappedBy = "logSession") @JsonIdentityReference(alwaysAsId = true)// @JsonManagedReference
     private List<StockOrder> stockOrders;
-    @OneToMany(mappedBy = "logSession")
+    @OneToMany(mappedBy = "logSession") @JsonIdentityReference(alwaysAsId = true)// @JsonManagedReference
     private List<CustomerOrder> orders;
     private static final long serialVersionUID = 1L;
     @Id
@@ -51,7 +56,7 @@ public class LogSession implements Serializable {
     private Date dateEnded;
     private Time timeEnded;
     private double turnOver;
-    @ManyToOne
+    @ManyToOne// @JsonBackReference
     private LogUser logUser;
     private boolean finalised;
 
