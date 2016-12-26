@@ -25,4 +25,8 @@ public interface CustomerBeanRemote {
 
     public List<Customer> findSearchedCustomers(Customer customer);
 
+    public int getCustomerCount();
+
+    public long getLatesOrdersID();
+
 }

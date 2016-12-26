@@ -23,6 +23,9 @@ public class OrderDetail {
     @ManyToOne @JsonIdentityReference(alwaysAsId = true)
   //  @JsonBackReference
     private StockDetail stockDetail;
+    double qty;
+    @Column(precision = 10, scale = 2)
+    double sellingPrice;
 
     public CustomerOrder getCustomerOrder() {
         return customerOrder;
@@ -46,5 +49,21 @@ public class OrderDetail {
 
     public void setStockDetail(StockDetail stockDetail) {
         this.stockDetail = stockDetail;
+    }
+
+    public double getQty() {
+        return qty;
+    }
+
+    public void setQty(double qty) {
+        this.qty = qty;
+    }
+
+    public double getSellingPrice() {
+        return sellingPrice;
+    }
+
+    public void setSellingPrice(double sellingPrice) {
+        this.sellingPrice = sellingPrice;
     }
 }

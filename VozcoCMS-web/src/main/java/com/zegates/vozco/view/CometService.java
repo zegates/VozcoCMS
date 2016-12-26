@@ -1,19 +1,14 @@
 package com.zegates.vozco.view;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zegates.vozco.beans.remote.CustomerBeanRemote;
+import com.zegates.vozco.beans.remote.CustomerOrderBeanRemote;
 import com.zegates.vozco.beans.remote.FoodCategoryBeanRemote;
 import com.zegates.vozco.beans.remote.FoodItemBeanRemote;
 import com.zegates.vozco.config.Configurations;
-import com.zegates.vozco.controller.CustomerController;
-import com.zegates.vozco.entities.Customer;
-import com.zegates.vozco.entities.FoodCategory;
-import com.zegates.vozco.entities.FoodItem;
-import com.zegates.vozco.entities.StockDetail;
-import com.zegates.vozco.factory.ControllerFactory;
-import com.zegates.vozco.jsonmap.FoodItemJson;
+import com.zegates.vozco.entities.*;
 import com.zegates.vozco.util.Logger;
-import org.codehaus.jackson.node.ArrayNode;
 import org.cometd.annotation.Configure;
 import org.cometd.annotation.Listener;
 import org.cometd.annotation.Service;
@@ -52,6 +47,7 @@ public class CometService {
     private CustomerBeanRemote customerBean = null;
     private FoodItemBeanRemote foodItemBean = null;
     private FoodCategoryBeanRemote foodCategoryBean = null;
+    private CustomerOrderBeanRemote customerOrderBean = null;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -188,6 +184,36 @@ public class CometService {
         channel.publish(map);
     }
 
+    @Listener("/cms/customerorder/create")
+    public void createCustomerOrder(ServerSession client, ServerMessage message) {
+        CustomerOrderBeanRemote cobr = getCustomerOrderBean();
+        Map<String, Object> map = new HashMap<String, Object>();
+        ClientSessionChannel channel = serverSession.getLocalSession().getChannel("/cms/customerorder/create/result");
+        try {
+
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            CustomerOrder customerOrder = objectMapper.readValue((String) message.getData(),  CustomerOrder.class);
+
+            int cid = customerOrder.getCustomer().getCid();
+            customerOrder.setOid(cobr.getLatestCustomerOrderID());
+
+            List<OrderDetail> orderDetails = customerOrder.getOrderDetails();
+
+            for (OrderDetail od : orderDetails) {
+
+            }
+
+
+            map.put("DB_OPERATION", Configurations.DBOperations.CREATED);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            map.put("DB_OPERATION", Configurations.DBOperations.FAIL);
+        }
+        channel.publish(map);
+    }
+
     @Listener("/cms/foodcategories")
     public void foodCategories(ServerSession client, ServerMessage message) {
         List<FoodCategory> foodCategories = getFoodCategoryBean().findFoodCategory();
@@ -317,6 +343,12 @@ public class CometService {
             foodCategoryBean = (FoodCategoryBeanRemote) bayeux.getContext().getContextAttribute("FoodCategoryBean");
         }
         return foodCategoryBean;
+    }
+    private CustomerOrderBeanRemote getCustomerOrderBean() {
+        if (customerOrderBean == null) {
+            customerOrderBean = (CustomerOrderBeanRemote) bayeux.getContext().getContextAttribute("FoodCategoryBean");
+        }
+        return customerOrderBean;
     }
 
 }

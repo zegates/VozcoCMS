@@ -13,7 +13,7 @@ import javax.persistence.*;
  * Created by sandaruwan on 3/15/16.
  */
 @Entity
-@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="sdid")
+@JsonIdentityInfo(generator=ObjectIdGenerators.PropertyGenerator.class, property="sdid", scope = StockDetail.class)
 public class StockDetail {
 
     @Id

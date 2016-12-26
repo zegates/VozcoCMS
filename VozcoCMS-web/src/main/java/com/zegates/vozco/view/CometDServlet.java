@@ -1,8 +1,10 @@
 package com.zegates.vozco.view;
 
 import com.zegates.vozco.beans.remote.CustomerBeanRemote;
+import com.zegates.vozco.beans.remote.CustomerOrderBeanRemote;
 import com.zegates.vozco.beans.remote.FoodCategoryBeanRemote;
 import com.zegates.vozco.beans.remote.FoodItemBeanRemote;
+import com.zegates.vozco.entities.CustomerOrder;
 import org.cometd.annotation.AnnotationCometDServlet;
 import org.cometd.annotation.Session;
 import org.cometd.bayeux.server.BayeuxServer;
@@ -31,6 +33,8 @@ public class CometDServlet extends AnnotationCometDServlet {
     private FoodItemBeanRemote foodItemBean;
     @EJB
     private FoodCategoryBeanRemote foodCategoryBean;
+    @EJB
+    private CustomerOrderBeanRemote customerOrderBean;
 
     private BayeuxServer bayeux;
 
@@ -42,5 +46,6 @@ public class CometDServlet extends AnnotationCometDServlet {
         this.getServletContext().setAttribute("CustomerBean", customerBean);
         this.getServletContext().setAttribute("FoodItemBean", foodItemBean);
         this.getServletContext().setAttribute("FoodCategoryBean", foodCategoryBean);
+        this.getServletContext().setAttribute("CustomerOrderBean", customerOrderBean);
     }
 }

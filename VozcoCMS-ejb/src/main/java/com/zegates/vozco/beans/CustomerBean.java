@@ -3,16 +3,15 @@ package com.zegates.vozco.beans;
 import com.zegates.vozco.beans.remote.CustomerBeanRemote;
 import com.zegates.vozco.entities.Customer;
 import com.zegates.vozco.util.Logger;
-import org.hibernate.annotations.NamedQuery;
-import sun.rmi.runtime.Log;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateful;
-import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -115,5 +114,32 @@ public class CustomerBean implements CustomerBeanRemote{
         return null;
     }
 
+    public int getCustomerCount() {
+        try {
+            CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
+            Root<Customer> rt = cq.from(Customer.class);
+            cq.select(em.getCriteriaBuilder().count(rt));
+            Query q = em.createQuery(cq);
+            return ((Long) q.getSingleResult()).intValue();
+        } finally {
+            em.close();
+        }
+    }
+
+    public long getLatesOrdersID() {
+        int customerCount = getCustomerCount();
+
+        List<Customer> os = findCustomers(customerCount, customerCount - 1);
+        if (os != null && os.size() > 0) {
+            Collections.reverse(os);
+            Customer get = os.get(0);
+            if (get != null) {
+                return get.getCid() + 1;
+            }
+        }else{
+            return 1L;
+        }
+        return 1L;
+    }
 
 }
